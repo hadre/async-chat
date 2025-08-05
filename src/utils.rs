@@ -16,7 +16,7 @@ where
 {
     let mut json = serde_json::to_string(&packet)?;
     json.push('\n');
-    outbound.write_all(json.as_bytes()).await?;
+    outbound.write_all(json.as_bytes()).await?;         // outbound对应接收端地址
     Ok(())
 }
 
@@ -39,7 +39,7 @@ pub fn receive_as_json<S, P>(inbound: S) -> impl Stream<Item = ChatResult<P>>
     // 实际上，S的限制中可以将Unpin删除，并将inbound改为Box::pin(inbound)
     // 但是，这样做没有必要，因为Unpin在Rust中才是常见的情形，使用Pin进行包装会增加复杂性和内存开销
     // 并且使使用更加复杂
-    inbound.lines()
+    inbound.lines()         // inbound对应发送端地址
         .map(|line_result| -> ChatResult<P> {
             let line = line_result?;
             let parsed = serde_json::from_str::<P>(&line)?;
