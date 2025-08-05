@@ -53,6 +53,7 @@ fn main() -> ChatResult<()> {
         .expect("Usage: client ADDRESS:PORT");
 
     task::block_on(async {
+        // 客户端的端口自动生成
         let socket = net::TcpStream::connect(address).await?;
         socket.set_nodelay(true)?;
 

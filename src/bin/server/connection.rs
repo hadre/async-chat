@@ -12,10 +12,11 @@ use crate::group_table::GroupTable;
 pub async fn serve(socket: TcpStream, groups: Arc<GroupTable>)
                    -> ChatResult<()>
 {
+    // 从这个地方获取client的地址？
     let outbound = Arc::new(Outbound::new(socket.clone()));
 
     let buffered = BufReader::new(socket);
-    let mut from_client = utils::receive_as_json(buffered);
+    let mut from_client = utils::receive_as_json(buffered); // 从socket中获取发送端的地址
     while let Some(request_result) = from_client.next().await {
         let request = request_result?;
 
@@ -54,6 +55,7 @@ pub struct Outbound(Mutex<TcpStream>);
 
 impl Outbound {
     pub fn new(to_client: TcpStream) -> Outbound {
+        // 由于Outbound会在多个线程（server在task::spawn调用）中使用，因此需要使用Mutex（非std中的Mutex）进行包装
         Outbound(Mutex::new(to_client))
     }
 
